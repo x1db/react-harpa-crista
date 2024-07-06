@@ -29,7 +29,7 @@ export interface HymnResponse {
 }
 
 export class HymnsApi {
-  private static API_URL = "https://harpa-api.glitch.me/hymns";
+  private static API_URL = "https://harpa-api.onrender.com/hymns";
 
   private static async fetchHymns(endpoint: string = "/") {
     const response = await fetch(`${this.API_URL}${endpoint}`);
