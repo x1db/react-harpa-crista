@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Button, ListGroup } from "react-bootstrap";
-import Loading from "../../components/Loading";
 import { HymnsApi, Hymns } from "../../utils/hymnsApi";
+import Loading from "../../components/Loading";
+import Pagination from "../../components/Pagination";
 
 function Home() {
   const navigate = useNavigate();
@@ -24,49 +25,26 @@ function Home() {
     <Row>
       <Col>
         <h1>Harpa Cristã</h1>
-        <Row>
-          <Col>
-            <ListGroup>
-              {hymns?.hymns.map((hymn) => (
-                <ListGroup.Item key={hymn.number}>
-                  <Button
-                    onClick={() => navigate(`/hymn/${hymn.number}`)}
-                    variant="link"
-                    className="text-decoration-none"
-                  >
-                    {hymn.number} - {hymn.title}
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Col>
-        </Row>
-        <Row className="mt-4">
-          <Col>
-            {(hymns?.currentPage as number) > 1 && (
+        <ListGroup className="my-4">
+          {hymns?.hymns.map((hymn) => (
+            <ListGroup.Item key={hymn.number}>
               <Button
-                onClick={async () =>
-                  setHymns(await HymnsApi.getHymns(hymns!.prevPage as number))
-                }
-                variant="outline-dark"
+                onClick={() => navigate(`/hymn/${hymn.number}`)}
+                variant="link"
+                className="text-decoration-none"
               >
-                Anterior
+                {hymn.number} - {hymn.title}
               </Button>
-            )}
-          </Col>
-          <Col className="text-end">
-            {(hymns?.currentPage as number) < (hymns?.totalPages as number) && (
-              <Button
-                onClick={async () =>
-                  setHymns(await HymnsApi.getHymns(hymns!.nextPage as number))
-                }
-                variant="outline-dark"
-              >
-                Próximo
-              </Button>
-            )}
-          </Col>
-        </Row>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+        <Pagination
+          currentPage={hymns.currentPage}
+          totalPages={hymns.totalPages}
+          onPageChange={(page) => {
+            HymnsApi.getHymns(page).then(setHymns);
+          }}
+        />
       </Col>
     </Row>
   );
