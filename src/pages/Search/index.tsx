@@ -1,30 +1,29 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Row, Col, Button, ListGroup, Badge } from "react-bootstrap";
-import Loading from "../components/Loading";
-import { HymnsApi, Hymns } from "../utils/hymnsApi";
+import Loading from "../../components/Loading";
+import { HymnsApi, Hymns } from "../../utils/hymnsApi";
 
 function Search() {
   const navigate = useNavigate();
   const { type, query } = useParams();
-  const [hymns, setHymns] = useState<Hymns>();
+  const [hymns, setHymns] = useState<Hymns | null>();
 
   useEffect(() => {
-    async function fetchHymns() {
-      if (
-        !type ||
-        !query ||
-        (type !== "title" && type !== "number" && type !== "verse")
-      ) {
-        navigate("/");
-        return;
-      }
-
-      const hymns = await HymnsApi.searchHymns(query as any, type as any);
-      setHymns(hymns);
+    if (
+      !type ||
+      !query ||
+      (type !== "title" && type !== "number" && type !== "verse")
+    ) {
+      navigate("/");
+      return;
     }
 
-    fetchHymns();
+    HymnsApi.searchHymns(query as any, type as any).then(setHymns);
+
+    return () => {
+      setHymns(null);
+    };
   }, [navigate, query, type]);
 
   if (!hymns) {
@@ -43,9 +42,13 @@ function Search() {
               {hymns?.hymns &&
                 hymns?.hymns.map((hymn) => (
                   <ListGroup.Item key={hymn.number}>
-                    <Link to={`/hymn/${hymn.number}`} className="btn text-dark">
-                      <strong>{hymn.number}</strong> - {hymn.title}
-                    </Link>
+                    <Button
+                      onClick={() => navigate(`/hymn/${hymn.number}`)}
+                      variant="link"
+                      className="text-decoration-none"
+                    >
+                      {hymn.number} - {hymn.title}
+                    </Button>
                   </ListGroup.Item>
                 ))}
             </ListGroup>
@@ -60,7 +63,7 @@ function Search() {
                     await HymnsApi.searchHymns(
                       query as any,
                       type as any,
-                      hymns!.currentPage - 1
+                      hymns!.prevPage as number
                     )
                   )
                 }
@@ -78,7 +81,7 @@ function Search() {
                     await HymnsApi.searchHymns(
                       query as any,
                       type as any,
-                      hymns!.currentPage + 1
+                      hymns!.nextPage as number
                     )
                   )
                 }

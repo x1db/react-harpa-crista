@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Row, Col, Button, ListGroup } from "react-bootstrap";
-import Loading from "../components/Loading";
-import { HymnsApi, Hymns } from "../utils/hymnsApi";
+import Loading from "../../components/Loading";
+import { HymnsApi, Hymns } from "../../utils/hymnsApi";
 
 function Home() {
-  const [hymns, setHymns] = useState<Hymns>();
+  const navigate = useNavigate();
+  const [hymns, setHymns] = useState<Hymns | null>();
 
   useEffect(() => {
-    async function fetchHymns() {
-      const hymns = await HymnsApi.getHymns();
-      setHymns(hymns);
-    }
+    HymnsApi.getHymns().then(setHymns);
 
-    fetchHymns();
+    return () => {
+      setHymns(null);
+    };
   }, []);
 
   if (!hymns) {
@@ -29,9 +29,13 @@ function Home() {
             <ListGroup>
               {hymns?.hymns.map((hymn) => (
                 <ListGroup.Item key={hymn.number}>
-                  <Link to={`/hymn/${hymn.number}`} className="btn text-dark">
-                    <strong>{hymn.number}</strong> - {hymn.title}
-                  </Link>
+                  <Button
+                    onClick={() => navigate(`/hymn/${hymn.number}`)}
+                    variant="link"
+                    className="text-decoration-none"
+                  >
+                    {hymn.number} - {hymn.title}
+                  </Button>
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -42,7 +46,7 @@ function Home() {
             {(hymns?.currentPage as number) > 1 && (
               <Button
                 onClick={async () =>
-                  setHymns(await HymnsApi.getHymns(hymns!.currentPage - 1))
+                  setHymns(await HymnsApi.getHymns(hymns!.prevPage as number))
                 }
                 variant="outline-dark"
               >
@@ -54,7 +58,7 @@ function Home() {
             {(hymns?.currentPage as number) < (hymns?.totalPages as number) && (
               <Button
                 onClick={async () =>
-                  setHymns(await HymnsApi.getHymns(hymns!.currentPage + 1))
+                  setHymns(await HymnsApi.getHymns(hymns!.nextPage as number))
                 }
                 variant="outline-dark"
               >

@@ -18,6 +18,7 @@ function Header() {
   const handleSearch = () => {
     if (search) {
       navigate(`/search/${type}/${search}`);
+      setSearch("");
     }
   };
 
@@ -41,6 +42,11 @@ function Header() {
                 aria-label="Buscar"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
               />
               <Button variant="outline-light" onClick={handleSearch}>
                 Buscar

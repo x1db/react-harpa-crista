@@ -6,6 +6,8 @@ export interface HymnSummary {
 export interface Hymns {
   hymns: HymnSummary[];
   currentPage: number;
+  nextPage: number | null;
+  prevPage: number | null;
   totalPages: number;
 }
 
