@@ -42,6 +42,7 @@ function Home() {
           currentPage={hymns.currentPage}
           totalPages={hymns.totalPages}
           onPageChange={(page) => {
+            setHymns(null);
             HymnsApi.getHymns(page).then(setHymns);
           }}
         />
